@@ -6,12 +6,21 @@ from typing import Literal, Optional, List
 import numpy as np
 from datetime import datetime
 import re
+from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app
 app = FastAPI(
     title="Spam Detection API",
     description="Machine Learning API for spam message detection",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all origins (or use ["http://localhost:3000"] for React dev)
+    allow_credentials=True,
+    allow_methods=["*"],   # allow GET, POST, etc.
+    allow_headers=["*"],   # allow all headers
 )
 
 # Global variables for models and preprocessors
