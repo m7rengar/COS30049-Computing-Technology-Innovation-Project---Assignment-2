@@ -1,0 +1,92 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+virtualenv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Environment variables
+.env
+.env.local
+*.env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Backup files
+*.bak
+*.swp
+*.swo
+*~
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Model training artifacts (ignore training runs)
+runs/
+checkpoints/
+tensorboard/
+mlruns/
+wandb/
+*.ckpt
+*.pth
+*.pt
+
+# BUT KEEP YOUR FINAL TRAINED MODELS
+!models/*.pkl
+
+# Data files (ignore large datasets)
+data/raw/
+data/processed/
+*.csv
+*.xlsx
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# mypy
+.mypy_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Secrets
+secrets.json
+credentials.json
+*.key
+*.pem
