@@ -6,3 +6,8 @@
 3. Open new terminal
 4. Enter Frontend Directory "cd .\frontend\"
 5. Run frontend code "npm start"
+
+##Potential run issues
+1. Incorrect Directory
+2. Closed a running script on terminal
+3. If "npm start" has a problem on first run, try "npm install" first.
