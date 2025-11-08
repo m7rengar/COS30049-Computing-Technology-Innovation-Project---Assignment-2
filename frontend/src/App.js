@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
-import logo from "./images/LOGO.png";
+import logo from "./LOGO.png";
 import About from "./About";
 
 const API_URL = "http://localhost:8000";
