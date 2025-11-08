@@ -1,125 +1,191 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import "./App.css";
+import logo from "./images/LOGO.png";
+import About from "./About";
 
-const API_URL = 'http://localhost:8000';
+const API_URL = "http://localhost:8000";
 
-function App() {
-  const [text, setText] = useState('');
-  const [batchText, setBatchText] = useState('');
-  const [model, setModel] = useState('random_forest');
-  const [result, setResult] = useState(null);
-  const [batchResult, setBatchResult] = useState([]);
+function Home() {
+  const [text, setText] = useState("");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+  const [model, setModel] = useState("random_forest");
+  const [dragActive, setDragActive] = useState(false);
+  const fileInputRef = useRef(null);
 
-  const handlePredict = async () => {
+  // Handle text predictions
+  const handlePredictText = async () => {
     if (!text.trim()) return;
     setLoading(true);
-    setError('');
     setResult(null);
 
     try {
       const res = await fetch(`${API_URL}/predict`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text, model }),
       });
-
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Prediction failed');
       setResult(data);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleBatchPredict = async () => {
-    const texts = batchText.split('\n').map(t => t.trim()).filter(Boolean);
-    if (!texts.length) return;
-
+  // Handle file upload
+  const handleFileUpload = async (selectedFile) => {
+    if (!selectedFile) return;
+    setFile(selectedFile);
     setLoading(true);
-    setError('');
-    setBatchResult([]);
+    setResult(null);
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+    formData.append("model", model);
 
     try {
-      const res = await fetch(`${API_URL}/predict-batch`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ texts, model }),
+      const res = await fetch(`${API_URL}/predict-file`, {
+        method: "POST",
+        body: formData,
       });
-
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Batch prediction failed');
-      setBatchResult(data.results);
+      setResult(data);
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Drag and drop handlers
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleFileUpload(e.dataTransfer.files[0]);
     }
   };
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif', maxWidth: 600, margin: '0 auto' }}>
-      <h1>Spam Detector</h1>
+    <div className="hero-section">
+      <h1 className="title">DETECT MALICIOUS EMAILS</h1>
 
-      {/* Model selection */}
-      <div>
-        <label>Model:</label>
-        <select value={model} onChange={e => setModel(e.target.value)}>
-          <option value="random_forest">Random Forest</option>
-          <option value="xgboost">XGBoost</option>
-        </select>
+      {/* Model Dropdown */}
+      <div className="model-selector">
+        <label htmlFor="model-dropdown">Choose AI Model:</label>
+        <div className="dropdown-wrapper">
+          <select
+            id="model-dropdown"
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+          >
+            <option value="random_forest">Random Forest</option>
+            <option value="xgboost">XGBoost</option>
+          </select>
+        </div>
       </div>
 
-      {/* Single message */}
-      <div style={{ marginTop: '1rem' }}>
+      {/* Text Input */}
+      <div className="input-box">
         <textarea
-          rows="4"
-          style={{ width: '100%' }}
-          placeholder="Enter a message..."
+          placeholder="Enter text here..."
           value={text}
-          onChange={e => setText(e.target.value)}
-        />
-        <button onClick={handlePredict} disabled={loading || !text.trim()}>
-          {loading ? 'Analyzing...' : 'Predict Single'}
-        </button>
+          onChange={(e) => setText(e.target.value)}
+        ></textarea>
+
+        <div className="button-area">
+          <button
+            onClick={handlePredictText}
+            disabled={loading || !text.trim()}
+          >
+            {loading ? "..." : <i className="fa fa-play"></i>}
+          </button>
+        </div>
       </div>
 
+      {/* File Upload with Drag and Drop */}
+      <div
+        className={`file-drop-zone ${dragActive ? "drag-active" : ""}`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          onChange={(e) => handleFileUpload(e.target.files[0])}
+        />
+        <div onClick={() => fileInputRef.current.click()}>
+          <p>
+            <i className="fa fa-cloud-arrow-up"></i>
+          </p>
+          <p>Drag and drop your file here or click to browse</p>
+        </div>
+      </div>
+
+      {file && (
+        <p className="file-name">
+          <i className="fa fa-file"></i> {file.name}
+        </p>
+      )}
+
+      {/* Result Box */}
       {result && (
-        <div style={{ marginTop: '1rem', padding: '1rem', border: '1px solid #ccc' }}>
-          <strong>Prediction:</strong> {result.prediction} <br />
-          <strong>Confidence:</strong> {(result.confidence * 100).toFixed(1)}%
+        <div className="output">
+          <p>
+            <strong>Prediction:</strong> {result.prediction} (
+            {(result.confidence * 100).toFixed(1)}%)
+          </p>
         </div>
       )}
 
-      {/* Batch messages */}
-      <div style={{ marginTop: '2rem' }}>
-        <textarea
-          rows="6"
-          style={{ width: '100%' }}
-          placeholder="Enter messages, one per line..."
-          value={batchText}
-          onChange={e => setBatchText(e.target.value)}
-        />
-        <button onClick={handleBatchPredict} disabled={loading || !batchText.trim()}>
-          {loading ? 'Analyzing...' : 'Predict Batch'}
-        </button>
-      </div>
-
-      {batchResult.length > 0 && (
-        <div style={{ marginTop: '1rem' }}>
-          {batchResult.map((r, i) => (
-            <div key={i} style={{ padding: '0.5rem', borderBottom: '1px solid #eee' }}>
-              <strong>Message:</strong> {r.text_preview} <br />
-              <strong>Prediction:</strong> {r.prediction} | <strong>Confidence:</strong> {(r.confidence * 100).toFixed(1)}%
-            </div>
-          ))}
-        </div>
-      )}
-
-      {error && <div style={{ color: 'red', marginTop: '1rem' }}>{error}</div>}
+      <p className="disclaimer">
+        We are not liable for any losses or damages from use of this analysis.
+      </p>
+      <p className="footer">2025 ©</p>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <div className="main-container">
+        <nav className="navbar">
+          <div className="nav-left">
+            <img src={logo} alt="logo" className="nav-logo" />
+            <h1 className="nav-title">MatrixShield</h1>
+          </div>
+          <div className="nav-right">
+            <Link to="/">HOME</Link>
+            <Link to="/about">ABOUT</Link>
+          </div>
+        </nav>
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/about" element={<About />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
