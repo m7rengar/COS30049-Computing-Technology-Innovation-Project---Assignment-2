@@ -11,3 +11,4 @@
 1. Incorrect Directory
 2. Closed a running script on terminal
 3. If "npm start" has a problem on first run, try "npm install" first.
+4. If module "react-router-dom" isn't found, run "npm install react-router-dom" then try npm start again.
