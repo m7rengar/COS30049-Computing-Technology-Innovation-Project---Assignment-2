@@ -147,13 +147,27 @@ function Home() {
         </p>
       )}
 
-      {/* Result Box */}
+      {/* Result Box with spam color and confidence bar */}
       {result && (
-        <div className="output">
+        <div
+          className={`output ${
+            result.prediction.toLowerCase() === "spam" ? "spam" : "ham"
+          }`}
+        >
           <p>
             <strong>Prediction:</strong> {result.prediction} (
             {(result.confidence * 100).toFixed(1)}%)
           </p>
+
+          {/* Confidence Bar */}
+          <div className="confidence-bar-container">
+            <div
+              className={`confidence-bar ${
+                result.prediction.toLowerCase() === "spam" ? "spam" : "ham"
+              }`}
+              style={{ width: `${(result.confidence * 100).toFixed(1)}%` }}
+            ></div>
+          </div>
         </div>
       )}
 
