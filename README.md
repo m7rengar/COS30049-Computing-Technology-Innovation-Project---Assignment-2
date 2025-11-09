@@ -5,7 +5,8 @@
 2. Run FastApi backend "uvicorn main:app --reload"
 3. Open new terminal
 4. Enter Frontend Directory "cd .\frontend\"
-5. Run frontend code "npm start"
+5. Within the Frontend Directory run "npm install" to install dependencies
+6. Use "npm start" to run the react app
 
 ##Potential run issues
 1. Incorrect Directory
